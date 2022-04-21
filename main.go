@@ -88,8 +88,10 @@ func main() {
 	sc.SetConfig(c)
 	reloadConfigOnChannel(logger, *configPath)
 	reloadConfigOnSignal(logger)
+	
+	ctx := context.Background()
 
-	metricsCollector, err := collector.NewCollector(&collector.CollectorConfig{Config: sc.GetConfig(), Logger: logger})
+	metricsCollector, err := collector.NewCollector(&collector.CollectorConfig{Config: sc.GetConfig(), Logger: logger}, ctx)
 	if err != nil {
 		logger.Err("error while initializing collector : %v", err)
 	}
