@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+    pro-opcua:
+        image: opcua-exporter
+        ports:
+            - 4242:4242
+        volumes:
+            - ./opcua.yaml:/app/opcua.yaml
+        command: ./opcua-exporter -endpoint=opc.tcp://x.x.x.x:4840 -auth-mode=Anonymous -verbosity=info -sec-policy=None -sec-mode=None
+        restart: always
