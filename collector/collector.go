@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"os"
 
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/ua"
@@ -46,9 +47,9 @@ type metricProperties struct {
 	labelsValues []string
 }
 
-func NewCollector(cfg *CollectorConfig) (*Collector, error) {
+func NewCollector(cfg *CollectorConfig, ctx context.Context) (*Collector, error) {
 	var err error
-	c := &Collector{Logger: cfg.Logger, ServerConfig: *cfg.Config.ServerConfig, opcuaClient: client.NewClientFromServerConfig(*cfg.Config.ServerConfig, cfg.Logger)}
+	c := &Collector{Logger: cfg.Logger, ServerConfig: *cfg.Config.ServerConfig, opcuaClient: client.NewClientFromServerConfig(*cfg.Config.ServerConfig, cfg.Logger, ctx)}
 	if err = c.opcuaClient.Connect(context.Background()); err != nil {
 		c.Logger.Fatal("cannot connect opcua client %v", err)
 	}
@@ -171,8 +172,10 @@ func (c *Collector) scrapeTarget() (*ua.ReadResponse, float64, error) {
 	}
 	start := time.Now()
 	resp, err := c.opcuaClient.Read(req)
+	_ = resp
 	if err != nil {
 		c.Logger.Err("read failed: %s", err)
+		os.Exit(1)
 		return nil, -1, err
 	}
 	return resp, time.Since(start).Seconds(), nil
